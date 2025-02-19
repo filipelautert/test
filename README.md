@@ -13,10 +13,12 @@ test
 3. Adding a new file in test/simple directory and syncing it back to simple (aka syncing a file from PRO back to OSS)
 4. Syncing/Merging remote changes to test with a conflict (aka syncing OSS repo to PRO with conflicts)
 5. Syncing/Merging remote changes to test with a conflict Using a branch and PR (aka syncing OSS repo to PRO with conflicts)
+6. Cloning and syncing in a new location
 
 ### 1. Initial setup/merge
 *  Checkout test project, then:
 ```
+git clone git@github.com:filipelautert/test.git
 git remote add -f simple git@github.com:filipelautert/simple.git
 git merge -s ours --no-commit --allow-unrelated-histories simple/main 
 git read-tree --prefix=simple -u simple/main
@@ -94,3 +96,12 @@ git add simple/new-file-in-test.txt
 git commit -m "Fixing conflict"
 git diff main:simple/ simple/main # all fine again
 git push
+
+
+### 6. Cloning and syncing in a new location
+```
+git clone git@github.com:filipelautert/test.git
+git remote add -f simple git@github.com:filipelautert/simple.git
+git diff main:simple/ simple/main # we can see the differences!
+git subtree pull --prefix simple simple main
+```
