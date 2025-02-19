@@ -1,4 +1,3 @@
-
 # Git subtree POC
 
 In this example we have 2 repos: test and simple. Simple will be a subtree inside test, so we'll have the following structure:
@@ -105,4 +104,28 @@ git push
 git clone git@github.com:filipelautert/test.git
 git remote add -f simple git@github.com:filipelautert/simple.git
 git subtree pull --prefix simple simple main
+```
+
+### 7. Automatic Sync with GitHub Actions
+This repository includes an automated workflow that syncs changes from the Simple repository daily. The workflow:
+- Runs automatically at midnight UTC
+- Can be triggered manually via GitHub Actions
+- Creates a pull request when changes are detected
+
+To manually trigger the sync:
+1. Go to the "Actions" tab in GitHub
+2. Select "Sync Simple Subtree" workflow
+3. Click "Run workflow"
+4. Select the branch (usually `main`) and run
+
+The workflow will:
+- Pull latest changes from the Simple repository
+- Create a PR if there are any updates
+- Use the branch name `sync-simple-updates` for the changes
+
+To modify the sync schedule, edit the cron expression in `.github/workflows/sync.yml`:
+```yaml
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight UTC
 ```
