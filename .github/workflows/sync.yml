@@ -1,0 +1,68 @@
+name: Sync Simple Subtree
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight UTC
+  workflow_dispatch:    # Allows manual triggering
+
+jobs:
+  sync-subtree:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository with full Git history.
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Required for subtree operations to work correctly
+
+      # Configure Git with a default user for commits made by this action.
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Add the remote for the Simple repository.
+      # This remote is added each time since GitHub Actions starts with a fresh clone.
+      - name: Add remote for Simple repository
+        run: |
+          # Add the remote named 'simple'. Using HTTPS here; update to SSH if needed.
+          git remote add simple https://github.com/filipelautert/simple.git || true
+          git fetch simple
+
+      # Pull updates from the Simple repository into the 'simple' subtree directory.
+      - name: Pull updates from Simple subtree
+        id: pull_subtree
+        run: |
+          # This command pulls changes from the 'main' branch of the 'simple' repo
+          # into the 'simple' directory of the current repository.
+          #
+          # The '--squash' flag combines all upstream changes into a single commit.
+          # If you prefer to preserve individual commit history from the Simple repo,
+          # remove the '--squash' flag.
+          git subtree pull --prefix simple simple main --squash || echo "No updates from simple."
+
+      # Check if there are any changes after the subtree pull.
+      - name: Check for changes
+        id: check_changes
+        run: |
+          # Use git status to see if any changes occurred.
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit."
+            echo "::set-output name=changed::false"
+          else
+            echo "Detected changes in the subtree."
+            echo "::set-output name=changed::true"
+          fi
+
+      # Create a pull request for the subtree updates if changes are detected.
+      - name: Create Pull Request for subtree updates
+        if: steps.check_changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: 'chore: sync Simple subtree updates'
+          branch: 'sync-simple-updates'
+          title: 'Sync updates from Simple repository'
+          body: |
+            This PR synchronizes the latest changes from the Simple repository
+            into the subtree located in the `simple/` directory.
