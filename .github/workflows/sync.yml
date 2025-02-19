@@ -58,6 +58,7 @@ jobs:
       - name: Create Pull Request for subtree updates
         if: steps.pull_subtree.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v4
+        id: create-pr
         with:
           commit-message: 'chore: sync Simple subtree updates'
           branch: 'sync-simple-updates'
@@ -65,3 +66,9 @@ jobs:
           body: |
             This PR synchronizes the latest changes from the Simple repository
             into the subtree located in the `simple/` directory.
+
+      # Enable auto-merge on the PR
+      - name: Enable auto-merge
+        if: steps.create-pr.outputs.pull-request-number
+        run: |
+          gh pr merge --auto --merge "${{ steps.create-pr.outputs.pull-request-number }}"

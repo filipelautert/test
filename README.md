@@ -111,6 +111,7 @@ This repository includes an automated workflow that syncs changes from the Simpl
 - Runs automatically at midnight UTC
 - Can be triggered manually via GitHub Actions
 - Creates a pull request when changes are detected
+- Automatically enables auto-merge on created PRs
 
 To manually trigger the sync:
 1. Go to the "Actions" tab in GitHub
@@ -121,11 +122,29 @@ To manually trigger the sync:
 The workflow will:
 - Pull latest changes from the Simple repository
 - Create a PR if there are any updates
+- Enable auto-merge on the PR
 - Use the branch name `sync-simple-updates` for the changes
+- Fail if there are merge conflicts (requiring manual intervention)
 
 To modify the sync schedule, edit the cron expression in `.github/workflows/sync.yml`:
 ```yaml
 on:
   schedule:
     - cron: '0 0 * * *'  # Runs every day at midnight UTC
+```
+
+#### Handling Sync Failures
+When the automatic sync encounters merge conflicts:
+1. The workflow will fail with an error message
+2. No PR will be created
+3. Manual intervention will be required to resolve conflicts
+
+To resolve conflicts manually:
+```bash
+git fetch simple
+git subtree pull --prefix simple simple main
+# Fix conflicts in the affected files
+git add .
+git commit -m "fix: resolve sync conflicts with Simple repository"
+git push
 ```
