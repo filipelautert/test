@@ -42,7 +42,7 @@ jobs:
           BEFORE_PULL=$(git rev-parse HEAD)
           
           # Perform the subtree pull
-          git subtree pull --prefix simple simple main || echo "No updates from simple."
+          git subtree pull --prefix simple simple main
           
           # Store the new HEAD commit
           AFTER_PULL=$(git rev-parse HEAD)
