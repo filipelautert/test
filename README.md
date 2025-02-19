@@ -8,13 +8,13 @@ test
 ```
 
 # Test Scenarios
-* Initial setup/merge (only once, but some steps may be required in automation)
-* Syncing/Merging remote changes from simple to test (aka syncing OSS repo to PRO)
-* Adding a new file in test/simple directory and syncing it back to simple (aka syncing a file from PRO back to OSS)
-* Syncing/Merging remote changes to test with a conflict (aka syncing OSS repo to PRO with conflicts)
+1. Initial setup/merge (only once, but some steps may be required in automation)
+2. Syncing/Merging remote changes from simple to test (aka syncing OSS repo to PRO)
+3. Adding a new file in test/simple directory and syncing it back to simple (aka syncing a file from PRO back to OSS)
+4. Syncing/Merging remote changes to test with a conflict (aka syncing OSS repo to PRO with conflicts)
+5. Syncing/Merging remote changes to test with a conflict Using a branch and PR (aka syncing OSS repo to PRO with conflicts)
 
-
-### Initial setup/merge
+### 1. Initial setup/merge
 *  Checkout test project, then:
 ```
 git remote add -f simple git@github.com:filipelautert/simple.git
@@ -25,7 +25,7 @@ git push
 ```
 
 
-### Syncing/Merging remote changes from simple
+### 2. Syncing/Merging remote changes from simple
 1. Commit to simple
 2. Now in test:
 ```
@@ -42,7 +42,7 @@ The following command may be useful in emergencies to resync:
 git merge -s subtree --allow-unrelated-histories simple/main
 ```
 
-### Adding a new file in test/simple directory and syncing it back to simple
+### 3. Adding a new file in test/simple directory and syncing it back to simple
 1. create file in test
 ```
 echo -n "Test" > simple/new-file-in-test.txt
@@ -57,7 +57,7 @@ git push simple $(git subtree split --prefix simple main):main --force
 Some docs says that a simple `git push simple main simple` should work, but looks like as branch gets different we need the `subtree split` command .
 
 
-### Syncing/Merging remote changes to test with a conflict
+### 4. Syncing/Merging remote changes to test with a conflict
 1. modify simple/new-file-in-test.txt
 ```
 git add simple/new-file-in-test.txt 
@@ -76,3 +76,21 @@ git diff main:simple/ simple/main # all fine again
 git push
 ```
 
+### 5. Syncing/Merging remote changes to test with a conflict Using a branch and PR (aka syncing OSS repo to PRO with conflicts)
+1. modify simple/new-file-in-test.txt
+```
+git add simple/new-file-in-test.txt 
+git commit -m "New file added inside simple in test respo"
+git push
+
+```
+2. In simple, modify new-file-in-test.txt too. Commit, push
+3. Now back to test:
+```
+git diff main:simple/ simple/main # we can see the differences, and a conflict
+git subtree pull --prefix simple simple main # now we got a conflict to solve
+vim simple/new-file-in-test.txt # fix conflict manually
+git add simple/new-file-in-test.txt 
+git commit -m "Fixing conflict"
+git diff main:simple/ simple/main # all fine again
+git push
