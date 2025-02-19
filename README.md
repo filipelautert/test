@@ -96,12 +96,12 @@ git add simple/new-file-in-test.txt
 git commit -m "Fixing conflict"
 git diff main:simple/ simple/main # all fine again
 git push
+```
 
 
 ### 6. Cloning and syncing in a new location
 ```
 git clone git@github.com:filipelautert/test.git
 git remote add -f simple git@github.com:filipelautert/simple.git
-git diff main:simple/ simple/main # we can see the differences!
 git subtree pull --prefix simple simple main
 ```
