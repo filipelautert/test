@@ -5,6 +5,10 @@ on:
     - cron: '0 0 * * *'  # Runs every day at midnight UTC
   workflow_dispatch:    # Allows manual triggering
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   sync-subtree:
     runs-on: ubuntu-latest
@@ -12,7 +16,7 @@ jobs:
     steps:
       # Checkout the repository with full Git history.
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Required for subtree operations to work correctly
 
@@ -40,7 +44,7 @@ jobs:
           # The '--squash' flag combines all upstream changes into a single commit.
           # If you prefer to preserve individual commit history from the Simple repo,
           # remove the '--squash' flag.
-          git subtree pull --prefix simple simple main --squash || echo "No updates from simple."
+          git subtree pull --prefix simple simple main || echo "No updates from simple."
 
       # Check if there are any changes after the subtree pull.
       - name: Check for changes
@@ -48,11 +52,9 @@ jobs:
         run: |
           # Use git status to see if any changes occurred.
           if [ -z "$(git status --porcelain)" ]; then
-            echo "No changes to commit."
-            echo "::set-output name=changed::false"
+            echo "changed=false" >> $GITHUB_OUTPUT
           else
-            echo "Detected changes in the subtree."
-            echo "::set-output name=changed::true"
+            echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
       # Create a pull request for the subtree updates if changes are detected.
