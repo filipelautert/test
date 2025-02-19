@@ -38,28 +38,25 @@ jobs:
       - name: Pull updates from Simple subtree
         id: pull_subtree
         run: |
-          # This command pulls changes from the 'main' branch of the 'simple' repo
-          # into the 'simple' directory of the current repository.
-          #
-          # The '--squash' flag combines all upstream changes into a single commit.
-          # If you prefer to preserve individual commit history from the Simple repo,
-          # remove the '--squash' flag.
+          # Store the current HEAD commit
+          BEFORE_PULL=$(git rev-parse HEAD)
+          
+          # Perform the subtree pull
           git subtree pull --prefix simple simple main || echo "No updates from simple."
-
-      # Check if there are any changes after the subtree pull.
-      - name: Check for changes
-        id: check_changes
-        run: |
-          # Use git status to see if any changes occurred.
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
+          
+          # Store the new HEAD commit
+          AFTER_PULL=$(git rev-parse HEAD)
+          
+          # Compare commits to detect changes
+          if [ "$BEFORE_PULL" != "$AFTER_PULL" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
       # Create a pull request for the subtree updates if changes are detected.
       - name: Create Pull Request for subtree updates
-        if: steps.check_changes.outputs.changed == 'true'
+        if: steps.pull_subtree.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v4
         with:
           commit-message: 'chore: sync Simple subtree updates'
