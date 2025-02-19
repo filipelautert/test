@@ -87,7 +87,8 @@ git push
 
 ```
 2. In simple, modify new-file-in-test.txt too. Commit, push
-3. Now back to test:
+3. Still in simple, create a new branch called `conflict-fix`
+4. Now back to test:
 ```
 git diff main:simple/ simple/main # we can see the differences, and a conflict
 git subtree pull --prefix simple simple main # now we got a conflict to solve
@@ -100,7 +101,7 @@ git push
 
 
 ### 6. Cloning and syncing in a new location
-```
+```t push simple main simple
 git clone git@github.com:filipelautert/test.git
 git remote add -f simple git@github.com:filipelautert/simple.git
 git subtree pull --prefix simple simple main
